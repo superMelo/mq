@@ -39,7 +39,7 @@ public class MQsenderImpl implements MQsender {
             System.out.printf("%s%n", sendResult);
 
         } catch (Exception e) {
-            log.error("创建消息服务端失败");
+            log.error("{}", e.getMessage(), e);
         } finally {
             producer.shutdown();
         }
