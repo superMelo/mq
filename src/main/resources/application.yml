@@ -1,0 +1,15 @@
+rocketmq:
+    name-server: 127.0.0.1:9876
+    timeout: 5000
+    topic: "TopicTest"
+
+spring:
+  application:
+    name: "please_rename_unique_group_name"
+
+
+server:
+  port: 8081
+
+
+
