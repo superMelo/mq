@@ -26,7 +26,7 @@ public class MQsenderImpl implements MQsender {
 
     @Override
     public void sendResult(Content text, String topic) {
-        DefaultMQProducer producer = applicationContext.getBean(DefaultMQProducer.class);
+        DefaultMQProducer producer = (DefaultMQProducer) applicationContext.getBean("producer");
         try {
             producer.start();
             //Create a message instance, specifying topic, tag and message body.
@@ -34,6 +34,7 @@ public class MQsenderImpl implements MQsender {
                     "TagA" /* Tag */,
                     (JSON.toJSONString(producer)).getBytes(RemotingHelper.DEFAULT_CHARSET) /* Message body */
             );
+            msg.setDelayTimeLevel(1);
             //Call send message to deliver message to one of brokers.
             SendResult sendResult = producer.send(msg);
             System.out.printf("%s%n", sendResult);
