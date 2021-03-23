@@ -89,24 +89,26 @@ public class MQConfig {
     }
 
 
-    @Scope("prototype")
+//    @Scope("prototype")
     @Bean(name = "transactionProducer")
-    public TransactionMQProducer transactionMQProducer(){
+    public TransactionMQProducer transactionMQProducer()throws Exception{
         TransactionMQProducer producer = new TransactionMQProducer("test_tansation_comsumer_name");
-        ExecutorService executorService = new ThreadPoolExecutor(2, 5, 5, TimeUnit.SECONDS,
-                new ArrayBlockingQueue<>(2000), new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread thead = new Thread(r);
-                thead.setName("tansaction_producer_group"+"callback-thread");
-                return thead;
-            }
-        });
+//        ExecutorService executorService = new ThreadPoolExecutor(2, 5, 50, TimeUnit.SECONDS,
+//                new ArrayBlockingQueue<>(2000), new ThreadFactory() {
+//            @Override
+//            public Thread newThread(Runnable r) {
+//                Thread thead = new Thread(r);
+//                thead.setName("tansaction_producer_group"+"callback-thread");
+//                return thead;
+//            }
+//        });
+        ExecutorService service = Executors.newCachedThreadPool();
         producer.setNamesrvAddr(nameServer);
-        producer.setExecutorService(executorService);
+        producer.setExecutorService(service);
         //这个接口有两个方法，一个是异步执行本地事务，一个是回查
         TransactionListenerImpl transactionListener =new TransactionListenerImpl();
         producer.setTransactionListener(transactionListener);
+        producer.start();
         return producer;
     }
 

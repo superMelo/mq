@@ -1,6 +1,5 @@
 package com.qyf.mq.listenter;
 
-import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.LocalTransactionState;
 import org.apache.rocketmq.client.producer.TransactionListener;
@@ -16,15 +15,16 @@ public class TransactionListenerImpl implements TransactionListener {
         log.info("-----执行事务-----");
 //        log.info("message:{}", JSON.toJSONString(message));
 //        log.info("obj:{}", JSON.toJSONString(o));
+        System.out.println("-----执行事务-----");
         boolean state = false;
         if (!state) {
-            return null;
+            return LocalTransactionState.UNKNOW;
         }
         return LocalTransactionState.COMMIT_MESSAGE;
     }
 
 
-    //检查事务回滚
+    //检查事务回滚 事务执行失败大约1分钟后会执行下面的方法
     @Override
     public LocalTransactionState checkLocalTransaction(MessageExt msg) {
         log.info("---回滚----");
