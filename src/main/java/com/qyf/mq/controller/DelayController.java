@@ -32,12 +32,13 @@ public class DelayController {
      */
     @RequestMapping("product")
     public Set product(){
+        Date date = new Date();
         Content content = new Content();
         content.setId(UUID.randomUUID().toString());
         content.setState("1");
         content.setContent("delay message");
-        content.setTime(new Date());
-        redisClient.add(key, JSON.toJSONString(content), new Date().getTime());
+        content.setTime(date);
+        redisClient.add(key, JSON.toJSONString(content), date.getTime());
         Set range = redisClient.range(key, 0, 1000);
         return range;
     }
@@ -45,7 +46,7 @@ public class DelayController {
     //开启线程池，不断消费zset里面最新的消息
     @RequestMapping("consumer")
     public void consumer(){
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(3, 4, 60L,
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 60L,
                 TimeUnit.SECONDS, new ArrayBlockingQueue<>(4000), new ThreadFactory() {
             AtomicInteger  poolNumber = new AtomicInteger(0);
             @Override
@@ -58,8 +59,13 @@ public class DelayController {
                 Set delay = redisClient.range(key, 0, 1);
                 if (delay != null && delay.size() > 0){
                     Object[] objects = delay.toArray();
-                    log.info("obj:{}", JSON.parseObject(objects[0].toString(), Content.class));
-                    redisClient.del(key, objects[0]);
+                    Date date = new Date();
+                    Content content = JSON.parseObject(objects[0].toString(), Content.class);
+                    //根据时间判断是否执行
+                    if (date.after(content.getTime())){
+                        log.info("obj:{}", content);
+                        redisClient.del(key, objects[0]);
+                    }
                 }
             }
         });
